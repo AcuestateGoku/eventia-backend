@@ -7,6 +7,8 @@ import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,7 +16,6 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "usuarios")
@@ -26,17 +27,14 @@ public class Usuario implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    @NotBlank(message = "El RUT es obligatorio")
+    @Column(unique = true)
     private String rut;
 
     @NotBlank(message = "El nombre es obligatorio")
     private String nombres;
 
-    @NotBlank(message = "Los apellidos son obligatorios")
     private String apellidos;
 
-    @NotNull(message = "La fecha de nacimiento es obligatoria")
     private LocalDate fechaNacimiento;
 
     private String genero;
@@ -50,6 +48,9 @@ public class Usuario implements Serializable {
 
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Column(updatable = false)
     private LocalDateTime fechaRegistro;
@@ -69,6 +70,9 @@ public class Usuario implements Serializable {
         this.email = email;
         this.password = password;
     }
+
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 
     // --- GETTERS Y SETTERS ---
     public Long getId() { return id; }

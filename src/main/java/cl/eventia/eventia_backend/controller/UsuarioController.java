@@ -1,7 +1,6 @@
 package cl.eventia.eventia_backend.controller;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,15 @@ public class UsuarioController {
 
     // LISTAR TODOS (GET)
     @GetMapping
-    public ResponseEntity<List<Usuario>> listarTodos() {
+    public ResponseEntity<?> listarTodos(jakarta.servlet.http.HttpSession session) {
+        // Solo ADMIN puede listar todos
+        Object roleObj = session.getAttribute("role");
+        String role = roleObj != null ? roleObj.toString() : "INVITADO";
+        if (!"ADMIN".equalsIgnoreCase(role)) {
+            Map<String, String> err = new HashMap<>();
+            err.put("error", "Acceso denegado: se requiere rol ADMIN");
+            return new ResponseEntity<>(err, HttpStatus.FORBIDDEN);
+        }
         return ResponseEntity.ok(usuarioService.listarTodos());
     }
 

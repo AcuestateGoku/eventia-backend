@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import cl.eventia.eventia_backend.model.Role;
 import cl.eventia.eventia_backend.model.Usuario;
 import cl.eventia.eventia_backend.repository.UsuarioRepository;
 import cl.eventia.eventia_backend.service.UsuarioService;
@@ -18,12 +19,26 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public Usuario registrar(Usuario usuario) {
         // Validaciones de negocio
-        if (usuarioRepository.existsByRut(usuario.getRut())) {
-            throw new RuntimeException("El RUT ya está registrado");
+        if (usuario.getEmail() == null || usuario.getEmail().isBlank()) {
+            throw new RuntimeException("El email es obligatorio");
         }
         if (usuarioRepository.existsByEmail(usuario.getEmail())) {
             throw new RuntimeException("El Email ya está registrado");
         }
+
+        if (usuario.getPassword() == null || usuario.getPassword().length() < 6) {
+            throw new RuntimeException("La contraseña debe tener al menos 6 caracteres");
+        }
+
+        // Asignar rol por defecto como USUARIO (no INVITADO)
+        if (usuario.getRole() == null) {
+            usuario.setRole(Role.USUARIO);
+        }
+
+        // Nota: No se aplica hashing; la contraseña se guarda tal cual (texto plano)
+        // (Seguridad reducida — recomendado cambiar en futuro)
+        // usuario.setPassword(usuario.getPassword()); // ya está en el objeto
+
         return usuarioRepository.save(usuario);
     }
 

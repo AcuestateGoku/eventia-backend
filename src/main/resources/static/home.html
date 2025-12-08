@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Inicio - Eventia</title>
+  <style>body{font-family:Arial,Helvetica,sans-serif;margin:20px} .container{max-width:600px;margin:0 auto;background:white;padding:20px;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)} h2{color:#333} p{margin:8px 0;color:#555} .user-info{background:#f5f5f5;padding:15px;border-radius:4px;margin:15px 0} .label{font-weight:bold;color:#2196F3} .status{display:inline-block;padding:6px 12px;border-radius:4px;font-size:14px;font-weight:bold;margin-top:10px;color:white} .status.usuario{background:#4CAF50} .status.invitado{background:#2196F3} a{display:inline-block;margin:5px 5px 5px 0;padding:10px 15px;background:#2196F3;color:white;text-decoration:none;border-radius:4px} a:hover{background:#0b7dda} .logout{background:#f44336} .logout:hover{background:#da190b}</style>
+</head>
+<body>
+  <div class="container">
+    <h2>Inicio</h2>
+    <div id="content"></div>
+  </div>
+  <script>
+  async function loadHome() {
+    const content = document.getElementById('content');
+    try {
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const data = await res.json();
+      
+      if (data.autenticado === 'true' && data.usuario) {
+        const u = data.usuario;
+        const roleClass = u.role === 'INVITADO' ? 'invitado' : 'usuario';
+        content.innerHTML = `
+          <p>Bienvenido, <strong>${u.nombres}</strong>!</p>
+          <div class="user-info">
+            <p><span class="label">Nombre:</span> ${u.nombres || '-'}</p>
+            <p><span class="label">Email:</span> ${u.email || '-'}</p>
+            <p><span class="label">Rol:</span> <span class="status ${roleClass}">${u.role}</span></p>
+          </div>
+          <a href="/users.html">Ver usuarios</a>
+          <a href="/" class="logout">Cerrar sesi\u00f3n</a>
+        `;
+      } else {
+        content.innerHTML = `
+          <p>No hay sesi\u00f3n activa</p>
+          <a href="/register.html">Registrarse</a>
+          <a href="/login.html">Iniciar sesi\u00f3n</a>
+          <a href="/guest.html">Acceso invitado</a>
+          <a href="/">Volver</a>
+        `;
+      }
+    } catch(err) {
+      content.textContent = 'Error: '+err;
+    }
+  }
+  loadHome();
+  </script>
+</body>
+</html>
