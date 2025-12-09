@@ -51,6 +51,9 @@ public class Usuario implements Serializable {
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
 
+    //Token para login
+    private String token;
+
     @Column(updatable = false)
     private LocalDateTime fechaRegistro;
 
@@ -101,8 +104,18 @@ public class Usuario implements Serializable {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
+    //Métodos de token
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     public LocalDateTime getFechaRegistro() { return fechaRegistro; }
     public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+
 
     // --- MÉTODOS DE OBJETO (toString, equals, hashCode) ---
     @Override

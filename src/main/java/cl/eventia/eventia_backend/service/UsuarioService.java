@@ -15,4 +15,7 @@ public interface UsuarioService {
     Usuario actualizar(Long id, Usuario usuario);
 
     void eliminar(Long id);
+
+    //Método login
+    Usuario login (String email, String password);
 }

@@ -33,13 +33,30 @@ public class UsuarioController {
     @PostMapping("/registro")
     public ResponseEntity<?> registrar(@Valid @RequestBody Usuario usuario) {
         Usuario nuevoUsuario = usuarioService.registrar(usuario);
-        
+
         // Creamos un "Mapa" para diseñar nuestra respuesta JSON
         Map<String, Object> response = new HashMap<>();
         response.put("mensaje", "¡El usuario ha sido registrado con éxito!");
         response.put("usuario", nuevoUsuario); // Incluimos los datos creados
-        
+
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    //LOGIN (POST)
+    @PostMapping("/login")
+    public ResponseEntity<?> login (@RequestBody Map<String, String> body) {
+        try {
+            String email = body.get("email");
+            String password = body.get("password");
+
+            Usuario usuario = usuarioService.login(email, password);
+            return ResponseEntity.ok(usuario);
+        }catch (RuntimeException ex) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", ex.getMessage());
+
+            return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        }
     }
 
     // LISTAR TODOS (GET)

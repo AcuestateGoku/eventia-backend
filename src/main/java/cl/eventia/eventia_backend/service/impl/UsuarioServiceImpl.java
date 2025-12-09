@@ -62,4 +62,25 @@ public class UsuarioServiceImpl implements UsuarioService {
     public void eliminar(Long id) {
         usuarioRepository.deleteById(id);
     }
+
+    @Override
+    public Usuario login(String email, String password) {
+
+        //Buscar usuario por email
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
+
+        //Validar contraseña
+        if (!usuario.getPassword().equals(password)) {
+            throw new RuntimeException("Contraseña incorrecta");
+        }
+
+        //Generar token simple
+        String token = java.util.UUID.randomUUID().toString();
+
+        usuario.setToken(token);
+        usuarioRepository.save(usuario);
+
+        return usuario; //Devuelve usuario + token
+    }
 }
