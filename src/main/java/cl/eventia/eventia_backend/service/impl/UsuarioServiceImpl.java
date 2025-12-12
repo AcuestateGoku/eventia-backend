@@ -75,12 +75,6 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new RuntimeException("Contraseña incorrecta");
         }
 
-        //Generar token simple
-        String token = java.util.UUID.randomUUID().toString();
-
-        usuario.setToken(token);
-        usuarioRepository.save(usuario);
-
         return usuario; //Devuelve usuario + token
     }
 }

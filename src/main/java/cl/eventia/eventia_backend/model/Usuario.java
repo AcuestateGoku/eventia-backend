@@ -1,5 +1,6 @@
 package cl.eventia.eventia_backend.model;
 
+import cl.eventia.eventia_backend.model.Role;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,6 +16,9 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+
 
 @Entity
 @Table(name = "usuarios")
@@ -51,6 +55,11 @@ public class Usuario implements Serializable {
     @NotBlank(message = "La contraseña es obligatoria")
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Role rol;
+
+
     //Token para login
     private String token;
 
@@ -58,7 +67,8 @@ public class Usuario implements Serializable {
     private LocalDateTime fechaRegistro;
 
     // --- CONSTRUCTORES ---
-    public Usuario() {}
+    public Usuario() {
+    }
 
     public Usuario(Long id, String rut, String nombres, String apellidos, LocalDate fechaNacimiento, String genero, String ciudad, String celular, String email, String password) {
         this.id = id;
@@ -74,35 +84,94 @@ public class Usuario implements Serializable {
     }
 
     // --- GETTERS Y SETTERS ---
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getRut() { return rut; }
-    public void setRut(String rut) { this.rut = rut; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getNombres() { return nombres; }
-    public void setNombres(String nombres) { this.nombres = nombres; }
+    public String getRut() {
+        return rut;
+    }
 
-    public String getApellidos() { return apellidos; }
-    public void setApellidos(String apellidos) { this.apellidos = apellidos; }
+    public void setRut(String rut) {
+        this.rut = rut;
+    }
 
-    public LocalDate getFechaNacimiento() { return fechaNacimiento; }
-    public void setFechaNacimiento(LocalDate fechaNacimiento) { this.fechaNacimiento = fechaNacimiento; }
+    public String getNombres() {
+        return nombres;
+    }
 
-    public String getGenero() { return genero; }
-    public void setGenero(String genero) { this.genero = genero; }
+    public void setNombres(String nombres) {
+        this.nombres = nombres;
+    }
 
-    public String getCiudad() { return ciudad; }
-    public void setCiudad(String ciudad) { this.ciudad = ciudad; }
+    public String getApellidos() {
+        return apellidos;
+    }
 
-    public String getCelular() { return celular; }
-    public void setCelular(String celular) { this.celular = celular; }
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public LocalDate getFechaNacimiento() {
+        return fechaNacimiento;
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        this.fechaNacimiento = fechaNacimiento;
+    }
+
+    public String getGenero() {
+        return genero;
+    }
+
+    public void setGenero(String genero) {
+        this.genero = genero;
+    }
+
+    public String getCiudad() {
+        return ciudad;
+    }
+
+    public void setCiudad(String ciudad) {
+        this.ciudad = ciudad;
+    }
+
+    public String getCelular() {
+        return celular;
+    }
+
+    public void setCelular(String celular) {
+        this.celular = celular;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    //Get&Set Role
+    public Role getRol() {
+        return rol;
+    }
+
+    public void setRol(Role rol) {
+        this.rol = rol;
+    }
 
     //Métodos de token
     public String getToken() {
@@ -113,8 +182,13 @@ public class Usuario implements Serializable {
         this.token = token;
     }
 
-    public LocalDateTime getFechaRegistro() { return fechaRegistro; }
-    public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
+    public LocalDateTime getFechaRegistro() {
+        return fechaRegistro;
+    }
+
+    public void setFechaRegistro(LocalDateTime fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
+    }
 
 
     // --- MÉTODOS DE OBJETO (toString, equals, hashCode) ---
@@ -143,8 +217,12 @@ public class Usuario implements Serializable {
     }
 
     // --- AUDITORÍA ---
+    //Con definición de rol CLIENTE por default
     @PrePersist
     protected void onCreate() {
+        if (rol == null) {
+            rol = Role.CLIENTE;
+        }
         fechaRegistro = LocalDateTime.now();
     }
 }

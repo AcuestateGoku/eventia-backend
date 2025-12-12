@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import cl.eventia.eventia_backend.security.JwtUtil;
 import cl.eventia.eventia_backend.model.Usuario;
 import cl.eventia.eventia_backend.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -26,8 +27,11 @@ import jakarta.validation.Valid;
 @CrossOrigin(origins = "*") // Permite que React (puerto 3000) se conecte
 public class UsuarioController {
 
+
     @Autowired
     private UsuarioService usuarioService;
+
+
 
     // REGISTRAR (POST)
     @PostMapping("/registro")
@@ -42,6 +46,9 @@ public class UsuarioController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     //LOGIN (POST)
     @PostMapping("/login")
     public ResponseEntity<?> login (@RequestBody Map<String, String> body) {
@@ -50,7 +57,20 @@ public class UsuarioController {
             String password = body.get("password");
 
             Usuario usuario = usuarioService.login(email, password);
-            return ResponseEntity.ok(usuario);
+
+            //Generar JWT con email + rol
+            String token = jwtUtil.generarToken(usuario.getEmail(), usuario.getRol().name());
+            usuario.setToken(token);
+
+            //Respuesta para el frontend
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("rol", usuario.getRol().name());
+            response.put("email", usuario.getEmail());
+            response.put("usuario", usuario);
+
+            return ResponseEntity.ok(response);
+
         }catch (RuntimeException ex) {
             Map<String, String> error = new HashMap<>();
             error.put("error", ex.getMessage());
