@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cl.eventia.eventia_backend.security.JwtUtil;
 import cl.eventia.eventia_backend.model.Usuario;
+import cl.eventia.eventia_backend.security.JwtUtil;
 import cl.eventia.eventia_backend.service.UsuarioService;
 import jakarta.validation.Valid;
 
@@ -46,6 +46,7 @@ public class UsuarioController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @SuppressWarnings("unused")
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -58,23 +59,18 @@ public class UsuarioController {
 
             Usuario usuario = usuarioService.login(email, password);
 
-            //Generar JWT con email + rol
-            String token = jwtUtil.generarToken(usuario.getEmail(), usuario.getRol().name());
-            usuario.setToken(token);
-
-            //Respuesta para el frontend
+            // Respuesta para el frontend (usamos el token que ya viene del servicio)
             Map<String, Object> response = new HashMap<>();
-            response.put("token", token);
+            response.put("token", usuario.getToken()); // <--- Directo del usuario
             response.put("rol", usuario.getRol().name());
             response.put("email", usuario.getEmail());
-            response.put("usuario", usuario);
+            response.put("usuario_id", usuario.getId()); // Útil para el front
 
             return ResponseEntity.ok(response);
 
-        }catch (RuntimeException ex) {
+        } catch (RuntimeException ex) {
             Map<String, String> error = new HashMap<>();
             error.put("error", ex.getMessage());
-
             return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
         }
     }
