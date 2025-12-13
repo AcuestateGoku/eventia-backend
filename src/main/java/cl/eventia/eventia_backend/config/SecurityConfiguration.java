@@ -15,7 +15,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-    // ... otros Beans y métodos ...
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -24,7 +23,8 @@ public class SecurityConfiguration {
         // 1. Permite el acceso desde tu Frontend (Local y de Producción)
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:3000",
-            "https://eventia-backend-9khs.onrender.com" // <--- CAMBIA ESTO POR TU URL REAL DE FRONTEND EN RENDER
+            "https://eventia-backend-9khs.onrender.com" 
+            "https://eventia-frontend-flame.vercel.app"
         ));
         
         // 2. Permite todos los métodos HTTP que React usa (GET, POST, PUT, DELETE)
