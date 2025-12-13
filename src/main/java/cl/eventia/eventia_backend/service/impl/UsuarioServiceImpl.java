@@ -3,10 +3,12 @@ package cl.eventia.eventia_backend.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder; // <--- Importante
 import org.springframework.stereotype.Service;
 
 import cl.eventia.eventia_backend.model.Usuario;
 import cl.eventia.eventia_backend.repository.UsuarioRepository;
+import cl.eventia.eventia_backend.security.JwtUtil; // <--- Importante
 import cl.eventia.eventia_backend.service.UsuarioService;
 
 @Service
@@ -14,16 +16,26 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder; // Para encriptar
+
+    @Autowired
+    private JwtUtil jwtUtil; // Para generar el token
 
     @Override
     public Usuario registrar(Usuario usuario) {
-        // Validaciones de negocio
         if (usuarioRepository.existsByRut(usuario.getRut())) {
             throw new RuntimeException("El RUT ya está registrado");
         }
         if (usuarioRepository.existsByEmail(usuario.getEmail())) {
             throw new RuntimeException("El Email ya está registrado");
         }
+        
+        // ENCRIPTAR PASS ANTES DE GUARDAR
+        // Así en la BD queda algo como "$2a$10$XyZ..." ilegible
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+        
         return usuarioRepository.save(usuario);
     }
 
@@ -39,22 +51,15 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public Usuario actualizar(Long id, Usuario usuarioModificado) {
-        // Buscamos si existe el usuario original
         Usuario usuarioExistente = usuarioRepository.findById(id).orElse(null);
-        
-        if (usuarioExistente == null) {
-            return null; // O lanzar excepción
-        }
+        if (usuarioExistente == null) return null;
 
-        // Actualizamos los campos que permitimos cambiar
-        // (No cambiamos el RUT ni el Email para no romper reglas de negocio)
         usuarioExistente.setNombres(usuarioModificado.getNombres());
         usuarioExistente.setApellidos(usuarioModificado.getApellidos());
         usuarioExistente.setCelular(usuarioModificado.getCelular());
         usuarioExistente.setCiudad(usuarioModificado.getCiudad());
         usuarioExistente.setGenero(usuarioModificado.getGenero());
         
-        // Guardamos (Hibernate detecta que ya tiene ID y hace UPDATE en vez de INSERT)
         return usuarioRepository.save(usuarioExistente);
     }
 
@@ -65,16 +70,20 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public Usuario login(String email, String password) {
-
-        //Buscar usuario por email
+        // 1. Buscar usuario
         Usuario usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(()-> new RuntimeException("Usuario no encontrado"));
 
-        //Validar contraseña
-        if (!usuario.getPassword().equals(password)) {
+        // 2. Validar contraseña (BCrypt)
+        // matches(pass_plana, pass_encriptada_bd)
+        if (!passwordEncoder.matches(password, usuario.getPassword())) {
             throw new RuntimeException("Contraseña incorrecta");
         }
 
-        return usuario; //Devuelve usuario + token
+        // 3. Generar Token y asignarlo al usuario (para devolverlo al front)
+        String token = jwtUtil.generarToken(usuario.getEmail(), usuario.getRol().name());
+        usuario.setToken(token);
+
+        return usuario; 
     }
 }
