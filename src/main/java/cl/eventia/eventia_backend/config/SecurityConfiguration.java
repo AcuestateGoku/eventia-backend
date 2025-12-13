@@ -23,7 +23,7 @@ public class SecurityConfiguration {
         // 1. Permite el acceso desde tu Frontend (Local y de Producción)
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:3000",
-            "https://eventia-backend-9khs.onrender.com" 
+            "https://eventia-backend-9khs.onrender.com" ,
             "https://eventia-frontend-flame.vercel.app"
         ));
         
